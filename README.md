@@ -1,1 +1,1 @@
-# COSC2395 Programming A Assignment 1
+# COSC2395 Programming A Assignment 2
