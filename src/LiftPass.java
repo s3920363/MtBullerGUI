@@ -16,6 +16,7 @@ public class LiftPass implements Serializable {
         this.type = type;
         this.days = days;
         calculateCost();
+
     }
 
     public void calculateCost() {
@@ -23,7 +24,7 @@ public class LiftPass implements Serializable {
             cost = 200;
         } else if (type.equalsIgnoreCase("Daily")) {
             cost = 26 * days;
-            if (days == 5) {
+            if (days >= 5) {
                 cost = cost * 0.9; // 10% discount
             }
         }
