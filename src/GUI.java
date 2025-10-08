@@ -8,7 +8,7 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Objects;
 
-public class MtBullerResortGUI extends JFrame {
+public class GUI extends JFrame {
     private final MtBullerResort resort = new MtBullerResort();
 
     private final JTextArea output = new JTextArea(18, 80);
@@ -37,7 +37,7 @@ public class MtBullerResortGUI extends JFrame {
     private final JComboBox<String> typeFilterCombo = new JComboBox<>(new String[]{"All", "Hotel", "Apartment", "Lodge", "Cabin"});
     private final JTextField maxPriceField = new JTextField(7);
 
-    public MtBullerResortGUI() {
+    public GUI() {
         super("Mount Buller Resort – Simple Swing GUI");
         resort.populateLists();
 
