@@ -202,7 +202,7 @@ public class MtBullerResort {
 
         System.out.println("----- Lift Pass Pricing -----");
         System.out.println("Full Day: $26");
-        System.out.println("5 Day Pass: $117 (10% off)");
+        System.out.println("5 days or mote: 10% off total");
         System.out.println("Season: $200");
         System.out.println("-----------------------------");
 
@@ -285,7 +285,7 @@ public class MtBullerResort {
         if (selectedCustomer == null) {
             return;
         }
-        
+
         //select accommodation object
         Accommodation selectedAccommodation = selectAccommodation();
         if (selectedAccommodation == null) {
