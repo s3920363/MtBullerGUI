@@ -85,7 +85,7 @@ public class TravelPackage implements Serializable {
         double totalCost = 0;
 
         if (acc != null) {
-            totalCost += acc.getPrice();
+            totalCost += acc.getPrice() * days;
         }
 
         if (liftPass != null) {
