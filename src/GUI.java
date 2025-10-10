@@ -62,13 +62,14 @@ public class GUI extends JFrame {
         add(scroll, BorderLayout.CENTER);
 
         refreshAllCombos();
-        setSize(1000, 600);
+        setSize(1300, 600);
 
         setLocationRelativeTo(null);
+        setVisible(true);
     }
 
     public static void main(String[] args) {
-
+        new GUI();
     }
 
     private JPanel buildAccommodationsTab() {
