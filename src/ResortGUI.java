@@ -43,7 +43,7 @@ public class ResortGUI extends JFrame {
 
         add(scroll, BorderLayout.CENTER);
 
-        refreshCombos();
+        updateCombos();
         setSize(1300, 700);
         setLocationRelativeTo(null);
         setVisible(true);
@@ -61,7 +61,7 @@ public class ResortGUI extends JFrame {
         p.setLayout(new FlowLayout(FlowLayout.LEFT));
 
         JButton listAllBtn = new JButton("List All");
-        listAllBtn.addActionListener(e -> {
+        listAllBtn.addActionListener(_ -> {
             output.setText("----- All Accommodations -----\n");
             for (Accommodation a : resort.accommodations) {
                 output.append(a + "\n");
@@ -69,7 +69,7 @@ public class ResortGUI extends JFrame {
         });
 
         JButton listAvaiBtn = new JButton("List Available");
-        listAvaiBtn.addActionListener(e -> {
+        listAvaiBtn.addActionListener(_ -> {
             output.setText("----- Available Accommodations -----\n");
             for (Accommodation a : resort.accommodations) {
                 if (a.isAvailable()) {
@@ -79,10 +79,10 @@ public class ResortGUI extends JFrame {
         });
 
         JButton filterTypeBtn = new JButton("Filter by Type");
-        filterTypeBtn.addActionListener(e -> filterByType());
+        filterTypeBtn.addActionListener(_ -> filterByType());
 
         JButton filterPriceBtn = new JButton("Filter by Price");
-        filterPriceBtn.addActionListener(e -> filterByPrice());
+        filterPriceBtn.addActionListener(_ -> filterByPrice());
 
         p.add(listAllBtn);
         p.add(listAvaiBtn);
@@ -98,7 +98,7 @@ public class ResortGUI extends JFrame {
         p.setLayout(new FlowLayout(FlowLayout.LEFT));
 
         JButton listBtn = new JButton("List Customers");
-        listBtn.addActionListener(e -> {
+        listBtn.addActionListener(_ -> {
             output.setText("----- Customers -----\n");
             for (Customer c : resort.customers) output.append(c + "\n");
         });
@@ -123,10 +123,10 @@ public class ResortGUI extends JFrame {
         JPanel p2 = new JPanel(new FlowLayout(FlowLayout.CENTER));
 
         JButton listBtn = new JButton("List Packages");
-        listBtn.addActionListener(e -> listPackages());
+        listBtn.addActionListener(_ -> listPackages());
 
         JButton createBtn = new JButton("Create Package");
-        createBtn.addActionListener(e -> createPackage());
+        createBtn.addActionListener(_ -> createPackage());
 
         p1.add(listBtn);
         p1.add(new JLabel("Customer:"));
@@ -223,19 +223,19 @@ public class ResortGUI extends JFrame {
         Customer c = new Customer(name, email, skill);
         resort.customers.add(c);
         output.setText("Customer added successfully:\n" + c + "\n");
-        refreshCombos();
+        updateCombos();
         nameField.setText("");
         emailField.setText("");
     }
 
 
-    private void refreshCombos() {
-        // Customers without a package
+    private void updateCombos() {
+        //customers without package
         DefaultComboBoxModel<Customer> custModel = new DefaultComboBoxModel<>();
         for (Customer c : resort.customers) if (!c.inPackage()) custModel.addElement(c);
         customerCombo.setModel(custModel);
 
-        // Available accommodations
+        //available accommodations
         DefaultComboBoxModel<Accommodation> accModel = new DefaultComboBoxModel<>();
         for (Accommodation a : resort.accommodations) if (a.isAvailable()) accModel.addElement(a);
         accommodationCombo.setModel(accModel);
