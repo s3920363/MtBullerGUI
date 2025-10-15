@@ -61,7 +61,7 @@ public class ResortGUI extends JFrame {
         p.setLayout(new FlowLayout(FlowLayout.LEFT));
 
         JButton listAllBtn = new JButton("List All");
-        listAllBtn.addActionListener(_ -> {
+        listAllBtn.addActionListener(e -> {
             output.setText("----- All Accommodations -----\n");
             for (Accommodation a : resort.accommodations) {
                 output.append(a + "\n");
@@ -69,7 +69,7 @@ public class ResortGUI extends JFrame {
         });
 
         JButton listAvaiBtn = new JButton("List Available");
-        listAvaiBtn.addActionListener(_ -> {
+        listAvaiBtn.addActionListener(e -> {
             output.setText("----- Available Accommodations -----\n");
             for (Accommodation a : resort.accommodations) {
                 if (a.isAvailable()) {
@@ -79,10 +79,10 @@ public class ResortGUI extends JFrame {
         });
 
         JButton filterTypeBtn = new JButton("Filter by Type");
-        filterTypeBtn.addActionListener(_ -> filterByType());
+        filterTypeBtn.addActionListener(e -> filterByType());
 
         JButton filterPriceBtn = new JButton("Filter by Price");
-        filterPriceBtn.addActionListener(_ -> filterByPrice());
+        filterPriceBtn.addActionListener(e -> filterByPrice());
 
         p.add(listAllBtn);
         p.add(listAvaiBtn);
@@ -98,7 +98,7 @@ public class ResortGUI extends JFrame {
         p.setLayout(new FlowLayout(FlowLayout.LEFT));
 
         JButton listBtn = new JButton("List Customers");
-        listBtn.addActionListener(_ -> {
+        listBtn.addActionListener(e -> {
             output.setText("----- Customers -----\n");
             for (Customer c : resort.customers) output.append(c + "\n");
         });
@@ -123,10 +123,10 @@ public class ResortGUI extends JFrame {
         JPanel p2 = new JPanel(new FlowLayout(FlowLayout.CENTER));
 
         JButton listBtn = new JButton("List Packages");
-        listBtn.addActionListener(_ -> listPackages());
+        listBtn.addActionListener(e -> listPackages());
 
         JButton createBtn = new JButton("Create Package");
-        createBtn.addActionListener(_ -> createPackage());
+        createBtn.addActionListener(e -> createPackage());
 
         p1.add(listBtn);
         p1.add(new JLabel("Customer:"));
