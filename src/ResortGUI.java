@@ -1,10 +1,9 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.Objects;
 
-public class ResortGUI extends JFrame implements ActionListener {
+public class ResortGUI extends JFrame {
     private final JTextArea output = new JTextArea(18, 80);
     private final JComboBox<String> typeFilterCombo = new JComboBox<>(new String[]{"All", "Hotel", "Apartment", "Lodge", "Cabin"});
     private final JTextField maxPriceField = new JTextField(7);
@@ -13,6 +12,12 @@ public class ResortGUI extends JFrame implements ActionListener {
     private final JTextField nameField = new JTextField(12);
     private final JTextField emailField = new JTextField(14);
     private final JComboBox<String> skillCombo = new JComboBox<>(new String[]{"Beginner", "Intermediate", "Expert"});
+
+    //packages tab
+    private final JComboBox<Customer> customerCombo = new JComboBox<>();
+    private final JComboBox<Accommodation> accommodationCombo = new JComboBox<>();
+    private final JTextField dateField = new JTextField(10); // "YYYY-MM-DD" or "now"
+    private final JTextField daysField = new JTextField(5);
 
 
     MtBullerResort resort = new MtBullerResort();
@@ -29,6 +34,7 @@ public class ResortGUI extends JFrame implements ActionListener {
         JTabbedPane tabs = new JTabbedPane();
         tabs.addTab("Accommodations", buildAccommodationsTab());
         tabs.addTab("Customers", buildCustomersTab());
+        tabs.addTab("Packages", buildPackagesTab());
 
 
         //add components
@@ -37,12 +43,13 @@ public class ResortGUI extends JFrame implements ActionListener {
 
         add(scroll, BorderLayout.CENTER);
 
-
+        refreshCombos();
         setSize(1300, 700);
         setLocationRelativeTo(null);
         setVisible(true);
 
     }
+
 
     public static void main(String[] args) {
         new ResortGUI();
@@ -111,6 +118,45 @@ public class ResortGUI extends JFrame implements ActionListener {
         return p;
     }
 
+    private Component buildPackagesTab() {
+        JPanel p1 = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JPanel p2 = new JPanel(new FlowLayout(FlowLayout.CENTER));
+
+        JButton listBtn = new JButton("List Packages");
+        listBtn.addActionListener(e -> listPackages());
+
+        JButton createBtn = new JButton("Create Package");
+        createBtn.addActionListener(e -> createPackage());
+
+        p1.add(listBtn);
+        p1.add(new JLabel("Customer:"));
+        p1.add(customerCombo);
+        p1.add(new JLabel("Accommodation:"));
+        p1.add(accommodationCombo);
+
+        p2.add(new JLabel("Date (YYYY-MM-DD or now):"));
+        p2.add(dateField);
+        p2.add(new JLabel("Days:"));
+        p2.add(daysField);
+        p2.add(createBtn);
+
+
+        JPanel container = new JPanel();
+        container.setLayout(new BoxLayout(container, BoxLayout.Y_AXIS)); // vertical stacking
+        container.add(p1);
+        container.add(p2);
+
+        return container;
+
+
+    }
+
+    private void createPackage() {
+    }
+
+    private void listPackages() {
+    }
+
     private void filterByPrice() {
         String txt = maxPriceField.getText().trim();
         if (txt.isEmpty()) {
@@ -177,13 +223,23 @@ public class ResortGUI extends JFrame implements ActionListener {
         Customer c = new Customer(name, email, skill);
         resort.customers.add(c);
         output.setText("Customer added successfully:\n" + c + "\n");
+        refreshCombos();
         nameField.setText("");
         emailField.setText("");
     }
 
 
-    @Override
-    public void actionPerformed(ActionEvent e) {
+    private void refreshCombos() {
+        // Customers without a package
+        DefaultComboBoxModel<Customer> custModel = new DefaultComboBoxModel<>();
+        for (Customer c : resort.customers) if (!c.inPackage()) custModel.addElement(c);
+        customerCombo.setModel(custModel);
+
+        // Available accommodations
+        DefaultComboBoxModel<Accommodation> accModel = new DefaultComboBoxModel<>();
+        for (Accommodation a : resort.accommodations) if (a.isAvailable()) accModel.addElement(a);
+        accommodationCombo.setModel(accModel);
 
     }
+
 }
