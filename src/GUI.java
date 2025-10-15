@@ -184,6 +184,12 @@ public class GUI extends JFrame {
             JOptionPane.showMessageDialog(this, "All fields must be filled.");
             return;
         }
+
+        if (!email.contains("@")) {
+            JOptionPane.showMessageDialog(this, "Please enter a valid email address.");
+            return;
+        }
+        
         if (!(skill.equals("beginner") || skill.equals("intermediate") || skill.equals("expert"))) {
             JOptionPane.showMessageDialog(this, "Skill level must be Beginner, Intermediate, or Expert.");
             return;
@@ -198,8 +204,8 @@ public class GUI extends JFrame {
     }
 
     private JPanel buildPackagesTab() {
-        JPanel p = new JPanel();
-        p.setLayout(new FlowLayout(FlowLayout.LEFT));
+        JPanel p1 = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JPanel p2 = new JPanel(new FlowLayout(FlowLayout.CENTER));
 
         JButton listBtn = new JButton("List Packages");
         listBtn.addActionListener(e -> listPackagesToOutput());
@@ -207,17 +213,27 @@ public class GUI extends JFrame {
         JButton createBtn = new JButton("Create Package");
         createBtn.addActionListener(e -> handleCreatePackage());
 
-        p.add(listBtn);
-        p.add(new JLabel("Customer:"));
-        p.add(customerCombo);
-        p.add(new JLabel("Accommodation:"));
-        p.add(accommodationCombo);
-        p.add(new JLabel("Date (YYYY-MM-DD or now):"));
-        p.add(dateField);
-        p.add(new JLabel("Days:"));
-        p.add(daysField);
-        p.add(createBtn);
-        return p;
+        p1.add(listBtn);
+        p1.add(new JLabel("Customer:"));
+        p1.add(customerCombo);
+        p1.add(new JLabel("Accommodation:"));
+        p1.add(accommodationCombo);
+
+        p2.add(new JLabel("Date (YYYY-MM-DD or now):"));
+        p2.add(dateField);
+        p2.add(new JLabel("Days:"));
+        p2.add(daysField);
+        p2.add(createBtn);
+
+        // Combine both panels
+        JPanel container = new JPanel();
+        container.setLayout(new BoxLayout(container, BoxLayout.Y_AXIS)); // vertical stacking
+        container.add(p1);
+        container.add(p2);
+
+        return container;
+
+
     }
 
     private void handleCreatePackage() {
