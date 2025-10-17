@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 public class ResortGUI extends JFrame {
+    //main output
     private final JTextArea output = new JTextArea(18, 80);
     private final JComboBox<String> typeFilterCombo = new JComboBox<>(new String[]{"All", "Hotel", "Apartment", "Lodge", "Cabin"});
     private final JTextField maxPriceField = new JTextField(7);
@@ -28,7 +29,6 @@ public class ResortGUI extends JFrame {
     private final JRadioButton dailyPassBtn = new JRadioButton("Daily", true);
     private final JRadioButton seasonPassBtn = new JRadioButton("Season");
     private final JTextField passDaysField = new JTextField(5);
-
     private final JComboBox<TravelPackage> packageForLessonsCombo = new JComboBox<>();
     private final JTextField lessonsCountField = new JTextField(5);
 
@@ -155,7 +155,7 @@ public class ResortGUI extends JFrame {
 
 
         JPanel container = new JPanel();
-        container.setLayout(new BoxLayout(container, BoxLayout.Y_AXIS)); // vertical stacking
+        container.setLayout(new BoxLayout(container, BoxLayout.Y_AXIS)); //vertical stacking
         container.add(p1);
         container.add(p2);
 
