@@ -30,7 +30,6 @@ public class ResortGUI extends JFrame {
         setLayout(new BorderLayout());
 
         //tabs
-
         JTabbedPane tabs = new JTabbedPane();
         tabs.addTab("Accommodations", buildAccommodationsTab());
         tabs.addTab("Customers", buildCustomersTab());
@@ -47,7 +46,6 @@ public class ResortGUI extends JFrame {
         setSize(1300, 700);
         setLocationRelativeTo(null);
         setVisible(true);
-
     }
 
 
@@ -155,6 +153,12 @@ public class ResortGUI extends JFrame {
     }
 
     private void listPackages() {
+        if (resort.packages.isEmpty()) {
+            output.setText("There are no packages.\n");
+        } else {
+            output.setText("----- Packages -----\n");
+            for (TravelPackage p : resort.packages) output.append(p + "\n");
+        }
     }
 
     private void filterByPrice() {
