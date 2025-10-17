@@ -1,6 +1,10 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.io.*;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 import java.util.Objects;
 
 public class ResortGUI extends JFrame {
@@ -19,6 +23,15 @@ public class ResortGUI extends JFrame {
     private final JTextField dateField = new JTextField(10); // "YYYY-MM-DD" or "now"
     private final JTextField daysField = new JTextField(5);
 
+    //extras tab
+    private final JComboBox<TravelPackage> packageForPassCombo = new JComboBox<>();
+    private final JRadioButton dailyPassBtn = new JRadioButton("Daily", true);
+    private final JRadioButton seasonPassBtn = new JRadioButton("Season");
+    private final JTextField passDaysField = new JTextField(5);
+
+    private final JComboBox<TravelPackage> packageForLessonsCombo = new JComboBox<>();
+    private final JTextField lessonsCountField = new JTextField(5);
+
 
     MtBullerResort resort = new MtBullerResort();
 
@@ -34,6 +47,8 @@ public class ResortGUI extends JFrame {
         tabs.addTab("Accommodations", buildAccommodationsTab());
         tabs.addTab("Customers", buildCustomersTab());
         tabs.addTab("Packages", buildPackagesTab());
+        tabs.addTab("Extras", buildExtrasTab());
+        tabs.addTab("File", buildFileTab());
 
 
         //add components
@@ -43,7 +58,7 @@ public class ResortGUI extends JFrame {
         add(scroll, BorderLayout.CENTER);
 
         updateCombos();
-        setSize(1300, 700);
+        pack();
         setLocationRelativeTo(null);
         setVisible(true);
     }
@@ -145,11 +160,254 @@ public class ResortGUI extends JFrame {
         container.add(p2);
 
         return container;
-
-
     }
 
+
+    private Component buildExtrasTab() {
+        //main panel
+        JPanel container = new JPanel();
+        container.setLayout(new BoxLayout(container, BoxLayout.Y_AXIS));
+
+        //lift pass panel
+        JPanel passPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        ButtonGroup passGroup = new ButtonGroup();
+        passGroup.add(dailyPassBtn);
+        passGroup.add(seasonPassBtn);
+
+        JButton addPassBtn = new JButton("Add Lift Pass");
+        addPassBtn.addActionListener(e -> handleAddPass());
+
+        passPanel.add(new JLabel("Lift Pass → Package:"));
+        passPanel.add(packageForPassCombo);
+        passPanel.add(dailyPassBtn);
+        passPanel.add(new JLabel("Days:"));
+        passPanel.add(passDaysField);
+        passPanel.add(seasonPassBtn);
+        passPanel.add(addPassBtn);
+
+        //lessons panel
+        JPanel lessonsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JButton addLessonsBtn = new JButton("Add Lessons");
+        addLessonsBtn.addActionListener(e -> handleAddLessons());
+
+        lessonsPanel.add(new JLabel("Lessons → Package:"));
+        lessonsPanel.add(packageForLessonsCombo);
+        lessonsPanel.add(new JLabel("Count:"));
+        lessonsPanel.add(lessonsCountField);
+        lessonsPanel.add(addLessonsBtn);
+
+        container.add(passPanel);
+        container.add(lessonsPanel);
+
+        return container;
+    }
+
+    private void handleAddLessons() {
+        TravelPackage pkg = (TravelPackage) packageForLessonsCombo.getSelectedItem();
+        if (pkg == null) {
+            JOptionPane.showMessageDialog(this, "Select a package.");
+            return;
+        }
+        if (pkg.getHasLessons()) {
+            JOptionPane.showMessageDialog(this, "This package already has Lessons.");
+            return;
+        }
+
+        int count;
+        try {
+            count = Integer.parseInt(lessonsCountField.getText().trim());
+            if (count <= 0) throw new NumberFormatException();
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "Enter a positive lessons count.");
+            return;
+        }
+        String level = pkg.getCustomer().getSkillLevel();
+        Lessons lessons = new Lessons(level, count);
+        pkg.setLessons(lessons);
+        output.setText("Lessons added successfully!\n" + pkg + "\n");
+        updateCombos();
+        lessonsCountField.setText("");
+    }
+
+    private void handleAddPass() {
+        TravelPackage pkg = (TravelPackage) packageForPassCombo.getSelectedItem();
+        if (pkg == null) {
+            JOptionPane.showMessageDialog(this, "Select a package.");
+            return;
+        }
+        if (pkg.getHasLiftPass()) {
+            JOptionPane.showMessageDialog(this, "This package already has a Lift Pass.");
+            return;
+        }
+
+        LiftPass pass;
+        if (seasonPassBtn.isSelected()) {
+            pass = new LiftPass("Season", 0);
+        } else {
+            int days;
+            try {
+                days = Integer.parseInt(passDaysField.getText().trim());
+                if (days <= 0) throw new NumberFormatException();
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "Enter a valid number of days.");
+                return;
+            }
+            pass = new LiftPass("Daily", days);
+        }
+        pkg.setLiftPass(pass);
+        output.setText("Lift pass added successfully!\n" + pkg + "\n");
+        updateCombos();
+        passDaysField.setText("");
+    }
+
+    private Component buildFileTab() {
+        JPanel p = new JPanel();
+        p.setLayout(new FlowLayout(FlowLayout.LEFT));
+
+        JButton saveBtn = new JButton("Save Packages...");
+        saveBtn.addActionListener(e -> savePackages());
+
+        JButton loadBtn = new JButton("Load Packages...");
+        loadBtn.addActionListener(e -> readPackages());
+
+        JButton listBtn = new JButton("List Packages");
+        listBtn.addActionListener(e -> listPackages());
+
+        p.add(saveBtn);
+        p.add(loadBtn);
+        p.add(listBtn);
+        return p;
+    }
+
+    private void savePackages() {
+        String fileName = JOptionPane.showInputDialog(this, "Enter file name (leave blank for 'packages.dat'):", "Save Packages", JOptionPane.PLAIN_MESSAGE);
+
+        if (fileName == null) {
+            return;
+        }
+
+        fileName = fileName.trim();
+        if (fileName.isEmpty()) {
+            fileName = "packages.dat";
+        }
+
+        if (!fileName.toLowerCase().endsWith(".dat")) {
+            fileName += ".dat";
+        }
+
+        File f = new File(fileName);
+
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(f))) {
+            oos.writeObject(new ArrayList<>(resort.packages));
+            output.setText("Packages saved to " + f.getName() + "\n");
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Error saving: " + ex.getMessage());
+        }
+    }
+
+    private void readPackages() {
+        String fileName = JOptionPane.showInputDialog(this, "Enter file name (leave blank for 'packages.dat'):", "Load Packages", JOptionPane.PLAIN_MESSAGE);
+
+        if (fileName == null) {
+            return;
+        }
+
+        //use default when blank
+        fileName = fileName.trim();
+        if (fileName.isEmpty()) {
+            fileName = "packages.dat";
+        }
+
+        if (!fileName.toLowerCase().endsWith(".dat")) {
+            fileName += ".dat";
+        }
+
+        File f = new File(fileName);
+
+        //check exists
+        if (!f.exists()) {
+            JOptionPane.showMessageDialog(this, "No such file.");
+            return;
+        }
+
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(f))) {
+            resort.packages = (ArrayList<TravelPackage>) ois.readObject();
+
+            //restore customer and accommodation statuses
+            for (TravelPackage pkg : resort.packages) {
+                Customer c = resort.searchCustomerByID(pkg.getCustomer().getID());
+                if (c != null) {
+                    c.setHasPackage();
+                } else {
+                    Customer newC = pkg.getCustomer();
+                    newC.setHasPackage();
+                    resort.customers.add(newC);
+                }
+
+                Accommodation a = resort.searchAccommodationByID(pkg.getAccommodation().getID());
+                if (a != null) a.setAvailable(false);
+            }
+
+            listPackages();
+            output.append("\nPackages loaded from " + f.getName());
+            updateCombos();
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Error loading: " + ex.getMessage());
+        }
+    }
+
+
     private void createPackage() {
+        Customer c = (Customer) customerCombo.getSelectedItem();
+        Accommodation a = (Accommodation) accommodationCombo.getSelectedItem();
+        if (c == null) {
+            JOptionPane.showMessageDialog(this, "Select a customer.");
+            return;
+        }
+        if (a == null) {
+            JOptionPane.showMessageDialog(this, "Select an accommodation.");
+            return;
+        }
+        if (!a.isAvailable()) {
+            JOptionPane.showMessageDialog(this, "Selected accommodation is not available.");
+            return;
+        }
+        if (c.inPackage()) {
+            JOptionPane.showMessageDialog(this, "Selected customer already has a package.");
+            return;
+        }
+
+        LocalDate date;
+        String dateTxt = dateField.getText().trim();
+        if (dateTxt.equalsIgnoreCase("now")) {
+            date = LocalDate.now();
+        } else {
+            try {
+                date = LocalDate.parse(dateTxt);
+            } catch (DateTimeParseException ex) {
+                JOptionPane.showMessageDialog(this, "Invalid date format.");
+                return;
+            }
+        }
+        int days;
+        try {
+            days = Integer.parseInt(daysField.getText().trim());
+            if (days <= 0) throw new NumberFormatException();
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "Enter a positive number of days.");
+            return;
+        }
+
+        TravelPackage pkg = new TravelPackage(c, date, days);
+        pkg.attachAccommodation(a);
+        a.setAvailable(false);
+        c.setHasPackage();
+        resort.packages.add(pkg);
+
+        output.setText("Package created successfully!\n" + pkg + "\n");
+        updateCombos();
+        dateField.setText("");
+        daysField.setText("");
     }
 
     private void listPackages() {
@@ -243,6 +501,16 @@ public class ResortGUI extends JFrame {
         DefaultComboBoxModel<Accommodation> accModel = new DefaultComboBoxModel<>();
         for (Accommodation a : resort.accommodations) if (a.isAvailable()) accModel.addElement(a);
         accommodationCombo.setModel(accModel);
+
+        //packages without pass
+        DefaultComboBoxModel<TravelPackage> passModel = new DefaultComboBoxModel<>();
+        for (TravelPackage p : resort.packages) if (!p.getHasLiftPass()) passModel.addElement(p);
+        packageForPassCombo.setModel(passModel);
+
+        //packages without lessons
+        DefaultComboBoxModel<TravelPackage> lessonsModel = new DefaultComboBoxModel<>();
+        for (TravelPackage p : resort.packages) if (!p.getHasLessons()) lessonsModel.addElement(p);
+        packageForLessonsCombo.setModel(lessonsModel);
 
     }
 
